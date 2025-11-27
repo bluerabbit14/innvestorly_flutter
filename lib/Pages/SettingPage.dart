@@ -1,35 +1,41 @@
 import 'package:flutter/material.dart';
+import 'ProfilePage.dart';
+import 'AuthenticationPage.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class SettingPage extends StatefulWidget {
+  const SettingPage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<SettingPage> createState() => _SettingPageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _SettingPageState extends State<SettingPage> {
   bool _isDarkMode = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffe8f4fd),
+      backgroundColor: Color(0xFFE0F2F7),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(15.0),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with logo and title
+              // Header with Logo and Title
               Row(
                 children: [
-                  Image.asset('assets/innvestorly_logo.png', height: 45, width: 45,),
-                  SizedBox(width: 12),
+                  Image.asset(
+                    'assets/innvestorly_logo.png',
+                    height: 45,
+                    width: 45,
+                  ),
+                  SizedBox(width: 20),
                   Text(
-                    'Settings',
+                    'Setting',
                     style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w400,
                       color: Color(0xFF2C3E50),
                       fontFamily: 'OpenSans',
                     ),
@@ -37,36 +43,34 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
               SizedBox(height: 10),
-              
               // Main white container
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Column(
-                      children: [
-                        // First Container - Profile Section
-                        _buildProfileContainer(),
-                        SizedBox(height: 16),
-                        
-                        // Second Container - Set Authentication
-                        _buildAuthContainer(),
-                        SizedBox(height: 16),
-                        
-                        // Third Container - App Theme
-                        _buildThemeContainer(),
-                        
-                        Spacer(),
-                        
-                        // Log Out Button
-                        _buildLogoutButton(),
-                      ],
-                    ),
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // First Container - Profile Section
+                      _buildProfileContainer(),
+                      SizedBox(height: 16),
+
+                      // Second Container - Set Authentication
+                      _buildAuthContainer(),
+                      SizedBox(height: 16),
+
+                      // Third Container - App Theme
+                      _buildThemeContainer(),
+
+                      SizedBox(height: 24),
+
+                      // Log Out Button
+                      _buildLogoutButton(),
+                    ],
                   ),
                 ),
               ),
@@ -89,7 +93,10 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       child: InkWell(
         onTap: () {
-          // Navigate to profile details
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfilePage()),
+          );
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -163,7 +170,10 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       child: InkWell(
         onTap: () {
-          // Navigate to authentication settings
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AuthenticationPage()),
+          );
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'widgets/UserManualDialog.dart';
+// import 'widgets/UserManualDialog.dart';
 
 class MandatoryPinpage extends StatefulWidget {
   const MandatoryPinpage({super.key});
@@ -9,14 +9,14 @@ class MandatoryPinpage extends StatefulWidget {
 }
 
 class _MandatoryPinpageState extends State<MandatoryPinpage> {
-  void _showInfoDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return UserManualDialog();
-      },
-    );
-  }
+  // void _showInfoDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return UserManualDialog();
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class _MandatoryPinpageState extends State<MandatoryPinpage> {
                           alignment: Alignment.topRight,
                           child: GestureDetector(
                             onTap: () {
-                              _showInfoDialog();
+                              //_showInfoDialog();
                             },
                             child: Container(
                               width: 40,

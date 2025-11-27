@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'SettingPage.dart';
 import 'RevenuePage.dart';
 import 'AllReportPage.dart';
-import 'ProfilePage.dart';
 
-class Dashboardpage extends StatefulWidget {
-  const Dashboardpage({super.key});
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
 
   @override
-  State<Dashboardpage> createState() => _DashboardPageState();
+  State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<Dashboardpage> {
+class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
 
   // List of tab pages - each tab will have its own top widget and content
@@ -26,9 +26,9 @@ class _DashboardPageState extends State<Dashboardpage> {
       content: AllReportPage(),
     ),
     TabPage(
-      title: 'Profile',
-      icon: Icons.person,
-      content: ProfilePage(),
+      title: 'Setting',
+      icon: Icons.settings,
+      content: SettingPage(),
     ),
   ];
 

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Loadingpage extends StatefulWidget {
-  const Loadingpage({super.key});
+class LoadingPage extends StatefulWidget {
+  const LoadingPage({super.key});
 
   @override
-  State<Loadingpage> createState() => _LoadingpageState();
+  State<LoadingPage> createState() => _LoadingpageState();
 }
 
-class _LoadingpageState extends State<Loadingpage> {
+class _LoadingpageState extends State<LoadingPage> {
   @override
   Widget build(BuildContext context) {
     return const Placeholder();

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'OccupancyPage.dart';
+import 'YoYReportPage.dart';
 
 class AllReportPage extends StatefulWidget {
   const AllReportPage({super.key});
@@ -7,19 +9,50 @@ class AllReportPage extends StatefulWidget {
   State<AllReportPage> createState() => _AllReportPageState();
 }
 
+
 class _AllReportPageState extends State<AllReportPage> {
+  // List of report items
+  List<Map<String, dynamic>> get _reportItems => [
+    {
+      'icon': Icons.bed,
+      'title': 'Occupancy',
+      'subtitle': 'Tap to view Occupancy Data',
+    },
+    {
+      'icon': Icons.bar_chart,
+      'title': 'YoY Report',
+      'subtitle': 'Tap to view YoY Data',
+    },
+  ];
+
+  void _handleReportTap(int index) {
+    switch (index) {
+      case 0: // Occupancy
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => OccupancyPage()),
+        );
+        break;
+      case 1: // YoY Report
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => YoYReportPage()),
+        );
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffe8f4fd),
+      backgroundColor: Color(0xFFE0F2F7),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header with Logo and Title
-              Row(
+        child: Column(
+          children: [
+            // Header with Logo and Title
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+              child: Row(
                 children: [
                   Image.asset(
                     'assets/innvestorly_logo.png',
@@ -30,42 +63,36 @@ class _AllReportPageState extends State<AllReportPage> {
                   Text(
                     'Reports Dashboard',
                     style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w400,
                       color: Color(0xFF2C3E50),
                       fontFamily: 'OpenSans',
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 40),
-              
-              // Occupancy Report Container
-              _buildReportContainer(
-                icon: Icons.bed,
-                title: 'Occupancy',
-                subtitle: 'Tap to view Occupancy Data',
-                onTap: () {
-                  // Navigate to Occupancy page
-                  // Navigator.push(context, MaterialPageRoute(builder: (context) => OccupancyPage()));
-                  print('Occupancy tapped');
+            ),
+            
+            // ListView for Report Items
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
+                itemCount: _reportItems.length,
+                itemBuilder: (context, index) {
+                  final item = _reportItems[index];
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: 20.0),
+                    child: _buildReportContainer(
+                      icon: item['icon'] as IconData,
+                      title: item['title'] as String,
+                      subtitle: item['subtitle'] as String,
+                      onTap: () => _handleReportTap(index),
+                    ),
+                  );
                 },
               ),
-              SizedBox(height: 20),
-              
-              // YoY Report Container
-              _buildReportContainer(
-                icon: Icons.bar_chart,
-                title: 'YoY Report',
-                subtitle: 'Tap to view YoY Data',
-                onTap: () {
-                  // Navigate to YoY Report page
-                  // Navigator.push(context, MaterialPageRoute(builder: (context) => YoYReportPage()));
-                  print('YoY Report tapped');
-                },
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -81,7 +108,7 @@ class _AllReportPageState extends State<AllReportPage> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.all(15),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
