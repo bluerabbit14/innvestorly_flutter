@@ -233,10 +233,17 @@ class _ForgotpasswordpageState extends State<Forgotpasswordpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFE0F2F7),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Color(0xFFE0F2F7),
-        title: Text('Forgot Password'),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        title: Text(
+          'Forgot Password',
+          style: TextStyle(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white
+                : Color(0xFF1A1A1A),
+          ),
+        ),
       ),
       body: Stack(
         children: [
@@ -262,7 +269,9 @@ class _ForgotpasswordpageState extends State<Forgotpasswordpage> {
                         'Innvestorly',
                         style: TextStyle(
                           fontSize: 38,
-                          color: Color(0xFF2C3E50),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : Color(0xFF2C3E50),
                           fontWeight: FontWeight.w600,
                           fontFamily: 'OpenSans',
                         ),
@@ -270,11 +279,16 @@ class _ForgotpasswordpageState extends State<Forgotpasswordpage> {
                     ],
                   ),
                   SizedBox(height: 40),
-                  Text('Reset App Code',style:
-                  TextStyle(
-                      fontSize: 25, color: Color(0xff2C3E50),
-                      fontWeight: FontWeight.w600, fontFamily: 'OpenSans'
-                  ),
+                  Text(
+                    'Reset App Code',
+                    style: TextStyle(
+                      fontSize: 25,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Color(0xff2C3E50),
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'OpenSans',
+                    ),
                   ),
                   SizedBox(height: 40),
                   // Email Field
@@ -309,6 +323,7 @@ class _ForgotpasswordpageState extends State<Forgotpasswordpage> {
                       ),
                       style: TextStyle(
                         fontFamily: 'OpenSans',
+                        color: Color(0xFF1A1A1A),
                       ),
                     ),
                   ),
@@ -352,7 +367,9 @@ class _ForgotpasswordpageState extends State<Forgotpasswordpage> {
               color: Colors.black.withOpacity(0.2),
               child: Center(
                 child: SpinKitCubeGrid(
-                  color: Color(0xFF3AB7BF),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Color(0xFF265984)
+                      : Color(0xFF3AB7BF),
                   size: 80.0,
                 ),
               ),

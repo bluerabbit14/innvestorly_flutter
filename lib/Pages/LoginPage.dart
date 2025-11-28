@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:innvestorly_flutter/services/AuthService.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -29,7 +29,6 @@ class _LoginPageState extends State<LoginPage> {
   
   // API Configuration
   static const String _apiUrl = 'https://dailyrevue.argosstaging.com/api/authenticate/signin';
-  static const String _jwtTokenKey = 'jwt_token';
 
   @override
   void initState() {
@@ -127,8 +126,8 @@ class _LoginPageState extends State<LoginPage> {
         }
 
         if (jwtToken != null && jwtToken.isNotEmpty) {
-          // Store JWT token
-          await _saveJwtToken(jwtToken);
+          // Store JWT token and set login flag (saveJwtToken sets both token and login flag)
+          await AuthService.saveJwtToken(jwtToken);
           
           // Navigate to dashboard
           if (mounted) {
@@ -186,16 +185,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  /// Saves JWT token to local storage
-  Future<void> _saveJwtToken(String token) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_jwtTokenKey, token);
-    } catch (e) {
-      // Handle storage error silently or log it
-      debugPrint('Error saving JWT token: $e');
-    }
-  }
 
   /// Shows error dialog
   void _showErrorDialog({required String title, required String message}) {
@@ -243,7 +232,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFE0F2F7),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           SafeArea(
@@ -268,7 +257,9 @@ class _LoginPageState extends State<LoginPage> {
                     'Innvestorly',
                     style: TextStyle(
                       fontSize: 38,
-                      color: Color(0xFF2C3E50),
+                      color:Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Color(0xFF2C3E50),
                       fontWeight: FontWeight.w600,
                       fontFamily: 'OpenSans',
                     ),
@@ -313,6 +304,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   style: TextStyle(
                     fontFamily: 'OpenSans',
+                    color: Color(0xFF1A1A1A),
                   ),
                 ),
               ),
@@ -364,6 +356,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   style: TextStyle(
                     fontFamily: 'OpenSans',
+                    color: Color(0xFF1A1A1A),
                   ),
                 ),
               ),
@@ -406,7 +399,9 @@ class _LoginPageState extends State<LoginPage> {
                   'Forgot Password',
                   style: TextStyle(
                     fontFamily: 'OpenSans',
-                    color: Color(0xFF66CCDD),
+                    color:Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Color(0xFF66CCDD),
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
@@ -415,11 +410,13 @@ class _LoginPageState extends State<LoginPage> {
               Spacer(),
               // Copyright
               Text(
-                '©2025 Innvestorly. All rights reserved.',
+                '©2025 Asif Abbas. All rights reserved.',
                 style: TextStyle(
                   fontSize: 14.0,
                   fontFamily: 'OpenSans',
-                  color: Color(0xFF333333),
+                  color:Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Color(0xFF333333),
                 ),
               ),
                 ],
@@ -432,7 +429,9 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.black.withOpacity(0.2),
               child: Center(
                 child: SpinKitCubeGrid(
-                  color: Color(0xFF3AB7BF),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Color(0xFF265984)
+                      : Color(0xFF3AB7BF),
                   size: 80.0,
                 ),
               ),
