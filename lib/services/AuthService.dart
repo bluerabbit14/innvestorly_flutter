@@ -85,6 +85,9 @@ class AuthService {
   static const String _mpinKey = 'mpin';
   static const String _isMPINSetKey = 'is_mpin_set';
 
+  // Biometric authentication related methods
+  static const String _isBiometricEnabledKey = 'is_biometric_enabled';
+
   /// Check if MPIN is set
   static Future<bool> isMPINSet() async {
     try {
@@ -137,6 +140,36 @@ class AuthService {
     }
   }
 
+  /// Check if biometric authentication is enabled
+  static Future<bool> isBiometricEnabled() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_isBiometricEnabledKey) ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Enable biometric authentication
+  static Future<void> enableBiometric() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_isBiometricEnabledKey, true);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Disable biometric authentication
+  static Future<void> disableBiometric() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_isBiometricEnabledKey, false);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Reset all app data (logout, clear MPIN, clear all flags)
   static Future<void> resetAllData() async {
     try {
@@ -147,6 +180,8 @@ class AuthService {
       // Clear MPIN data
       await prefs.remove(_mpinKey);
       await prefs.setBool(_isMPINSetKey, false);
+      // Clear biometric preference
+      await prefs.setBool(_isBiometricEnabledKey, false);
     } catch (e) {
       rethrow;
     }

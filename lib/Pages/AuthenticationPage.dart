@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:innvestorly_flutter/services/AuthService.dart';
+import 'package:innvestorly_flutter/services/BiometricService.dart';
 
 class AuthenticationPage extends StatefulWidget {
   const AuthenticationPage({super.key});
@@ -12,11 +13,15 @@ class AuthenticationPage extends StatefulWidget {
 class _AuthenticationPageState extends State<AuthenticationPage> {
   String? selectedAuthMethod;
   bool _isMPINSet = false;
+  bool _isBiometricEnabled = false;
+  bool _isBiometricAvailable = false;
+  bool _isCheckingBiometric = false;
 
   @override
   void initState() {
     super.initState();
     _checkMPINStatus();
+    _checkBiometricStatus();
   }
 
   Future<void> _checkMPINStatus() async {
@@ -26,6 +31,25 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       // If MPIN is already set, automatically select it
       if (isSet) {
         selectedAuthMethod = 'mpin';
+      }
+    });
+  }
+
+  Future<void> _checkBiometricStatus() async {
+    setState(() {
+      _isCheckingBiometric = true;
+    });
+
+    final isEnabled = await AuthService.isBiometricEnabled();
+    final isAvailable = await BiometricService.isBiometricAvailable();
+
+    setState(() {
+      _isBiometricEnabled = isEnabled;
+      _isBiometricAvailable = isAvailable;
+      _isCheckingBiometric = false;
+      // If biometric is enabled, automatically select it
+      if (isEnabled && isAvailable) {
+        selectedAuthMethod = 'biometric';
       }
     });
   }
@@ -77,11 +101,16 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
               // Biometric Authentication Card
               _buildAuthCard(
                 title: 'Biometric Authentication',
-                subtitle: 'Use fingerprint or face recognition',
+                subtitle: _isCheckingBiometric
+                    ? 'Checking availability...'
+                    : _isBiometricAvailable
+                        ? 'Use fingerprint or face recognition'
+                        : 'Not available on this device',
                 icon: Icons.fingerprint,
                 secondaryIcon: Icons.face,
                 method: 'biometric',
                 color: Color(0xFF50C878),
+                isEnabled: _isBiometricAvailable && !_isCheckingBiometric,
               ),
               SizedBox(height: 24),
 
@@ -101,7 +130,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (selectedAuthMethod == 'mpin') {
                         if (_isMPINSet) {
                           // Navigate to MPINPage for verification
@@ -110,9 +139,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                           // Show PIN setup dialog
                           _showPINSetupDialog();
                         }
-                      } else {
-                        // Handle biometric authentication
-                        // Placeholder for navigation
+                      } else if (selectedAuthMethod == 'biometric') {
+                        // Handle biometric authentication setup
+                        await _handleBiometricSetup();
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -153,6 +182,22 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                   ),
                 ),
               ],
+
+              // Remove Biometric Button (only show when biometric is enabled and selected)
+              if (selectedAuthMethod == 'biometric' && _isBiometricEnabled) ...[
+                SizedBox(height: 16),
+                TextButton(
+                  onPressed: _showRemoveBiometricDialog,
+                  child: Text(
+                    'Remove Biometric Authentication',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.red,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -167,22 +212,29 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     IconData? secondaryIcon,
     required String method,
     required Color color,
+    bool isEnabled = true,
   }) {
     bool isSelected = selectedAuthMethod == method;
     
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedAuthMethod = method;
-        });
-      },
+      onTap: isEnabled
+          ? () {
+              setState(() {
+                selectedAuthMethod = method;
+              });
+            }
+          : null,
       child: Container(
         padding: EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: isEnabled
+              ? Theme.of(context).colorScheme.surface
+              : Theme.of(context).colorScheme.surface.withOpacity(0.5),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? color : Color(0xFFE0E0E0),
+            color: isEnabled
+                ? (isSelected ? color : Color(0xFFE0E0E0))
+                : Color(0xFFCCCCCC),
             width: isSelected ? 2.5 : 1.5,
           ),
           boxShadow: [
@@ -355,6 +407,166 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                 'Remove',
                 style: TextStyle(
                   color: Colors.red,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleBiometricSetup() async {
+    // Check device compatibility
+    final isCompatible = await BiometricService.isDeviceCompatible();
+    if (!isCompatible) {
+      _showErrorDialog('Biometric authentication is not supported on this device.');
+      return;
+    }
+
+    // Check if biometric is available
+    final isAvailable = await BiometricService.isBiometricAvailable();
+    if (!isAvailable) {
+      _showErrorDialog(
+          'No biometric authentication is set up on this device. Please set up fingerprint or face recognition in your device settings.');
+      return;
+    }
+
+    // Get available biometric types
+    final availableBiometrics = await BiometricService.getAvailableBiometrics();
+    String biometricType = 'biometric';
+    if (availableBiometrics.isNotEmpty) {
+      biometricType = BiometricService.getBiometricTypeName(availableBiometrics.first);
+    }
+
+    // Authenticate with biometric
+    final authenticated = await BiometricService.authenticate(
+      reason: 'Please authenticate to enable biometric login',
+    );
+
+    if (authenticated) {
+      // Enable biometric authentication
+      await AuthService.enableBiometric();
+      setState(() {
+        _isBiometricEnabled = true;
+      });
+      _showSuccessDialog('Biometric authentication has been enabled successfully!');
+    } else {
+      _showErrorDialog('Biometric authentication failed. Please try again.');
+    }
+  }
+
+  void _showRemoveBiometricDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return AlertDialog(
+          backgroundColor: isDark
+              ? Color(0xFF1E3A5F)
+              : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            'Remove Biometric?',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Color(0xFF1A1A1A),
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to remove biometric authentication? You will need to set it up again if you want to use it.',
+            style: TextStyle(
+              fontSize: 16,
+              color: isDark ? Colors.white : Color(0xFF666666),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: isDark ? Colors.white : Color(0xFF666666),
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Disable biometric
+                await AuthService.disableBiometric();
+                setState(() {
+                  _isBiometricEnabled = false;
+                  selectedAuthMethod = null; // Deselect biometric
+                });
+                Navigator.of(context).pop();
+                // Show success message
+                _showSuccessDialog('Biometric authentication has been removed successfully!');
+              },
+              child: Text(
+                'Remove',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return AlertDialog(
+          backgroundColor: isDark
+              ? Color(0xFF1E3A5F)
+              : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: Row(
+            children: [
+              Icon(
+                Icons.error_outline,
+                color: Colors.red,
+                size: 28,
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isDark ? Colors.white : Color(0xFF1A1A1A),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  color: isDark ? Colors.white : Color(0xFF3AB7BF),
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
