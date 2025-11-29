@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Base configuration: Trust system and user certificates -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust preinstalled CAs -->
+            <certificates src="system" />
+            <!-- Additionally trust user added CAs -->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Domain-specific configuration for staging server -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">dailyrevue.argosstaging.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
+

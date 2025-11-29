@@ -63,8 +63,12 @@ class _DashboardPageState extends State<DashboardPage> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: Color(0xFF2C3E50),
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white
+            : Colors.white,
+        selectedItemColor: Theme.of(context).brightness == Brightness.dark
+            ? Color(0xFF265984)
+            : Color(0xFF00BCD4),
         unselectedItemColor: Colors.grey,
         selectedFontSize: 12,
         unselectedFontSize: 12,

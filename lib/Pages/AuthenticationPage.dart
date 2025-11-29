@@ -303,8 +303,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: Theme.of(context).brightness == Brightness.dark
+          backgroundColor: isDark
               ? Color(0xFF1E3A5F)
               : Colors.white,
           shape: RoundedRectangleBorder(
@@ -315,14 +316,14 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: isDark ? Colors.white : Color(0xFF1A1A1A),
             ),
           ),
           content: Text(
             'Are you sure you want to remove MPIN authentication? You will need to set it up again if you want to use it.',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white,
+              color: isDark ? Colors.white : Color(0xFF666666),
             ),
           ),
           actions: [
@@ -333,7 +334,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
               child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: isDark ? Colors.white : Color(0xFF666666),
                   fontSize: 16,
                 ),
               ),
@@ -370,8 +371,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: Theme.of(context).brightness == Brightness.dark
+          backgroundColor: isDark
               ? Color(0xFF1E3A5F)
               : Colors.white,
           shape: RoundedRectangleBorder(
@@ -390,7 +392,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                   message,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white,
+                    color: isDark ? Colors.white : Color(0xFF1A1A1A),
                   ),
                 ),
               ),
@@ -404,7 +406,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
               child: Text(
                 'OK',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: isDark ? Colors.white : Color(0xFF3AB7BF),
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),

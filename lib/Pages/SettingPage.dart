@@ -25,6 +25,7 @@ class _SettingPageState extends State<SettingPage> {
   String? _email;
   File? _profileImage;
   static const String _profileImagePathKey = 'profile_image_path';
+  bool _hasNavigatedAway = false;
 
   @override
   void initState() {
@@ -32,6 +33,16 @@ class _SettingPageState extends State<SettingPage> {
     _fetchUserProfile();
     _loadTheme();
     _loadProfileImage();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh profile data when page becomes visible again after navigation
+    if (_hasNavigatedAway && mounted) {
+      _hasNavigatedAway = false;
+      _fetchUserProfile();
+    }
   }
 
   Future<void> _loadTheme() async {
@@ -236,6 +247,9 @@ class _SettingPageState extends State<SettingPage> {
       ),
       child: InkWell(
         onTap: () async {
+          // Mark that we're navigating away
+          _hasNavigatedAway = true;
+          
           // Combine first name and last name into full name
           String? fullName;
           if (_firstName != null || _lastName != null) {
@@ -256,7 +270,8 @@ class _SettingPageState extends State<SettingPage> {
             ),
           );
           
-          // Reload profile image when returning from ProfilePage
+          // Refresh profile data and reload profile image when returning from ProfilePage
+          _fetchUserProfile();
           _loadProfileImage();
         },
         borderRadius: BorderRadius.circular(12),

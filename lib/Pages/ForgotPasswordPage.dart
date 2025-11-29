@@ -125,12 +125,32 @@ class _ForgotpasswordpageState extends State<Forgotpasswordpage> {
       }
     } catch (e) {
       if (mounted) {
+        // Log the actual error for debugging - including full stack trace
+        print('ForgotPasswordPage Error Type: ${e.runtimeType}');
+        print('ForgotPasswordPage Error: ${e.toString()}');
+        print('ForgotPasswordPage StackTrace: ${StackTrace.current}');
+        
         String errorMessage = 'An error occurred. Please try again.';
-        if (e.toString().contains('timeout')) {
+        String errorString = e.toString().toLowerCase();
+        
+        if (errorString.contains('timeout')) {
           errorMessage = 'Request timeout. Please check your internet connection.';
-        } else if (e.toString().contains('SocketException') || 
-                   e.toString().contains('Failed host lookup')) {
+        } else if (errorString.contains('socketexception') || 
+                   errorString.contains('failed host lookup') ||
+                   errorString.contains('network is unreachable') ||
+                   errorString.contains('no address associated with hostname')) {
           errorMessage = 'No internet connection. Please check your network.';
+        } else if (errorString.contains('handshakeexception') ||
+                   errorString.contains('tlsexception') ||
+                   errorString.contains('certificateexception') ||
+                   errorString.contains('certificate verify failed')) {
+          errorMessage = 'SSL certificate error. Please check your network security settings.';
+        } else if (errorString.contains('connection refused') ||
+                   errorString.contains('connection reset')) {
+          errorMessage = 'Connection error. Please try again later.';
+        } else {
+          // Show actual error for debugging (remove in production if needed)
+          errorMessage = 'Network error: ${e.toString().split(':').last.trim()}';
         }
         
         _showErrorDialog(

@@ -47,13 +47,24 @@ class ProfileService {
         throw Exception(errorMessage);
       }
     } catch (e) {
+      // Log the actual error for debugging
+      print('ProfileService Error: ${e.toString()}');
+      
       if (e.toString().contains('timeout')) {
         throw Exception('Request timeout. Please check your internet connection.');
       } else if (e.toString().contains('SocketException') || 
                  e.toString().contains('Failed host lookup')) {
         throw Exception('No internet connection. Please check your network.');
+      } else if (e.toString().contains('HandshakeException') ||
+                 e.toString().contains('TlsException') ||
+                 e.toString().contains('CertificateException')) {
+        throw Exception('SSL certificate error. Please check your network security settings.');
+      } else if (e.toString().contains('Connection refused') ||
+                 e.toString().contains('Connection reset')) {
+        throw Exception('Connection error. Please try again later.');
       }
-      rethrow;
+      // Rethrow with original message for better debugging
+      throw Exception('Network error: ${e.toString()}');
     }
   }
 }
