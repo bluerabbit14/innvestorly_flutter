@@ -37,6 +37,9 @@ class _YoYReportPageState extends State<YoYReportPage> {
   
   // Flag to check if any data is available at all
   bool _hasAnyData = false;
+  
+  // Flag to check if there are at least 2 years of data to compare
+  bool _hasAtLeastTwoYears = false;
 
   @override
   void initState() {
@@ -85,6 +88,43 @@ class _YoYReportPageState extends State<YoYReportPage> {
               });
           
           _hasAnyData = hasYoYData || hasYearlyData;
+          
+          // Check if there are at least 2 years of data to compare
+          Set<int> availableYears = {};
+          
+          // Check yearly response for distinct years with actual revenue data
+          for (var hotel in yearlyResponse) {
+            final yearWiseData = hotel['yearWiseData'] as List<dynamic>? ?? [];
+            for (var yearData in yearWiseData) {
+              if (yearData is Map<String, dynamic>) {
+                final year = (yearData['year'] as num?)?.toInt();
+                final revenue = (yearData['totalGrossRev'] as num?)?.toDouble() ?? 0.0;
+                if (year != null && revenue > 0) {
+                  availableYears.add(year);
+                }
+              }
+            }
+          }
+          
+          // Check YoY response - if it has data for comparison (both years or at least meaningful comparison)
+          bool hasYoYComparison = false;
+          if (yoyResponse.isNotEmpty) {
+            // Check if we have data that represents at least 2 years being compared
+            Set<int> yoyYears = {};
+            for (var item in yoyResponse) {
+              final leftRevenue = (item['leftYearRevenue'] as num?)?.toDouble() ?? 0.0;
+              final rightRevenue = (item['rightYearRevenue'] as num?)?.toDouble() ?? 0.0;
+              // If we have any revenue data, it means we're comparing years
+              if (leftRevenue > 0 || rightRevenue > 0) {
+                hasYoYComparison = true;
+                break;
+              }
+            }
+          }
+          
+          // Enable dropdowns only if we have at least 2 distinct years with data
+          // OR if we have YoY comparison data (which inherently compares 2 years)
+          _hasAtLeastTwoYears = availableYears.length >= 2 || hasYoYComparison;
           
           // Process data
           _processYoYData();
@@ -266,19 +306,22 @@ class _YoYReportPageState extends State<YoYReportPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: Color(0xFFE0F2F7),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Color(0xFFE0F2F7),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF2C3E50)),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onBackground),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'YoY Revenue Report',
           style: TextStyle(
-            color: Color(0xFF2C3E50),
+            color: theme.colorScheme.onBackground,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -314,7 +357,15 @@ class _YoYReportPageState extends State<YoYReportPage> {
                                   value: _selectedYearPair,
                                   isExpanded: true,
                                   underline: SizedBox(),
-                                  icon: Icon(Icons.arrow_drop_down, color: Color(0xFF2C3E50)),
+                                  style: TextStyle(
+                                    color: _hasAtLeastTwoYears ? Color(0xFF2C3E50) : Color(0xFFBDC3C7),
+                                    fontSize: 14,
+                                  ),
+                                  icon: Icon(
+                                    Icons.arrow_drop_down, 
+                                    color: _hasAtLeastTwoYears ? Color(0xFF2C3E50) : Color(0xFFBDC3C7)
+                                  ),
+                                  dropdownColor: Colors.white,
                                   items: _availableYearPairs.map((yearPair) {
                                     return DropdownMenuItem<String>(
                                       value: yearPair,
@@ -327,14 +378,14 @@ class _YoYReportPageState extends State<YoYReportPage> {
                                       ),
                                     );
                                   }).toList(),
-                                  onChanged: (value) {
+                                  onChanged: _hasAtLeastTwoYears ? (value) {
                                     if (value != null) {
                                       setState(() {
                                         _selectedYearPair = value;
                                         _processYoYData();
                                       });
                                     }
-                                  },
+                                  } : null,
                                 ),
                               ),
                             ),
@@ -352,7 +403,15 @@ class _YoYReportPageState extends State<YoYReportPage> {
                                   value: _selectedHotel,
                                   isExpanded: true,
                                   underline: SizedBox(),
-                                  icon: Icon(Icons.arrow_drop_down, color: Color(0xFF2C3E50)),
+                                  style: TextStyle(
+                                    color: _hasAtLeastTwoYears ? Color(0xFF2C3E50) : Color(0xFFBDC3C7),
+                                    fontSize: 14,
+                                  ),
+                                  icon: Icon(
+                                    Icons.arrow_drop_down, 
+                                    color: _hasAtLeastTwoYears ? Color(0xFF2C3E50) : Color(0xFFBDC3C7)
+                                  ),
+                                  dropdownColor: Colors.white,
                                   items: [
                                     DropdownMenuItem<String?>(
                                       value: null,
@@ -377,12 +436,12 @@ class _YoYReportPageState extends State<YoYReportPage> {
                                       );
                                     }),
                                   ],
-                                  onChanged: (value) {
+                                  onChanged: _hasAtLeastTwoYears ? (value) {
                                     setState(() {
                                       _selectedHotel = value;
                                       _processYoYData();
                                     });
-                                  },
+                                  } : null,
                                 ),
                               ),
                             ),
@@ -436,6 +495,9 @@ class _YoYReportPageState extends State<YoYReportPage> {
   }
 
   Widget _buildChartSection() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     if (_monthlyData.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16.0),
@@ -737,6 +799,9 @@ class _YoYReportPageState extends State<YoYReportPage> {
   }
 
   Widget _buildTableSection() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     if (_hotelData.isEmpty) {
       return Container(
         decoration: BoxDecoration(

@@ -178,21 +178,25 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   /// Shows error dialog
   void _showErrorDialog({required String title, required String message}) {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: theme.dialogBackgroundColor,
           title: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'OpenSans',
               fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
             ),
           ),
           content: Text(
             message,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'OpenSans',
+              color: theme.colorScheme.onSurface,
             ),
           ),
           actions: [
@@ -243,13 +247,16 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: Color(0xFFE0F2F7),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Color(0xFFE0F2F7),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF2C3E50)),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onBackground),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -257,7 +264,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w400,
-            color: Color(0xFF2C3E50),
+            color: theme.colorScheme.onBackground,
             fontFamily: 'OpenSans',
           ),
         ),
@@ -320,7 +327,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     'Password must be at least 8 characters long',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey.shade500,
+                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
                       fontFamily: 'OpenSans',
                     ),
                   ),
@@ -380,12 +387,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     required String? Function(String?) validator,
     required VoidCallback onToggleVisibility,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? theme.colorScheme.surface : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.grey.shade300,
+          color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
           width: 1,
         ),
       ),
@@ -395,18 +405,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         validator: validator,
         style: TextStyle(
           fontFamily: 'OpenSans',
-          color: Color(0xFF2C3E50),
+          color: theme.colorScheme.onSurface,
         ),
         decoration: InputDecoration(
           labelText: label,
           hintText: placeholder,
           hintStyle: TextStyle(
             fontFamily: 'OpenSans',
-            color: Colors.grey.shade400,
+            color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
           ),
           labelStyle: TextStyle(
             fontFamily: 'OpenSans',
-            color: Colors.grey.shade600,
+            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
           ),
           prefixIcon: Icon(
             Icons.lock_outline,
@@ -415,7 +425,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           suffixIcon: IconButton(
             icon: Icon(
               obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-              color: Colors.grey.shade600,
+              color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
             ),
             onPressed: onToggleVisibility,
           ),

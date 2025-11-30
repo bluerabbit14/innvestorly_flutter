@@ -135,13 +135,16 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: Color(0xFFE0F2F7),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Color(0xFFE0F2F7),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF2C3E50)),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onBackground),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -149,7 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w400,
-            color: Color(0xFF2C3E50),
+            color: theme.colorScheme.onBackground,
             fontFamily: 'OpenSans',
           ),
         ),
@@ -171,7 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       color: Color(0xFF3AB7BF),
                       width: 3,
                     ),
-                    color: Color(0xFFE0F2F7),
+                    color: isDark ? theme.colorScheme.surface : Color(0xFFE0F2F7),
                   ),
                   child: ClipOval(
                     child: _profileImage != null
@@ -198,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF2C3E50),
+                      color: theme.colorScheme.onBackground,
                       fontFamily: 'OpenSans',
                     ),
                   ),
@@ -251,10 +254,10 @@ class _ProfilePageState extends State<ProfilePage> {
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? theme.colorScheme.surface : Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.grey.shade300,
+                    color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
                     width: 1,
                   ),
                 ),
@@ -269,12 +272,12 @@ class _ProfilePageState extends State<ProfilePage> {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
+                            color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Icons.lock_outline,
-                            color: Colors.grey.shade700,
+                            color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
                             size: 28,
                           ),
                         ),
@@ -288,7 +291,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF2C3E50),
+                                  color: theme.colorScheme.onBackground,
                                   fontFamily: 'OpenSans',
                                 ),
                               ),
@@ -297,7 +300,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 'Update your password',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey.shade600,
+                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                                   fontFamily: 'OpenSans',
                                 ),
                               ),
@@ -306,7 +309,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         Icon(
                           Icons.chevron_right,
-                          color: Colors.grey.shade700,
+                          color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
                           size: 24,
                         ),
                       ],
@@ -328,12 +331,15 @@ class _ProfilePageState extends State<ProfilePage> {
     required IconData icon,
     TextInputType? keyboardType,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? theme.colorScheme.surface : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.grey.shade300,
+          color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
           width: 1,
         ),
       ),
@@ -343,18 +349,18 @@ class _ProfilePageState extends State<ProfilePage> {
         enabled: false, // Make field read-only
         style: TextStyle(
           fontFamily: 'OpenSans',
-          color: Color(0xFF2C3E50),
+          color: theme.colorScheme.onSurface,
         ),
         decoration: InputDecoration(
           labelText: label,
           hintText: placeholder,
           hintStyle: TextStyle(
             fontFamily: 'OpenSans',
-            color: Colors.grey.shade400,
+            color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
           ),
           labelStyle: TextStyle(
             fontFamily: 'OpenSans',
-            color: Colors.grey.shade600,
+            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
           ),
           prefixIcon: Icon(
             icon,

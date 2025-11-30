@@ -77,15 +77,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   /// Shows image source selection dialog
   Future<void> _showImageSourceDialog() async {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: theme.dialogBackgroundColor,
           title: Text(
             'Select Image Source',
             style: TextStyle(
               fontFamily: 'OpenSans',
               fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
             ),
           ),
           content: Column(
@@ -95,7 +98,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 leading: Icon(Icons.camera_alt, color: Color(0xFF3AB7BF)),
                 title: Text(
                   'Camera',
-                  style: TextStyle(fontFamily: 'OpenSans'),
+                  style: TextStyle(
+                    fontFamily: 'OpenSans',
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -106,7 +112,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 leading: Icon(Icons.photo_library, color: Color(0xFF3AB7BF)),
                 title: Text(
                   'Gallery',
-                  style: TextStyle(fontFamily: 'OpenSans'),
+                  style: TextStyle(
+                    fontFamily: 'OpenSans',
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -178,21 +187,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   /// Shows confirmation dialog before exiting with unsaved changes
   Future<bool> _showUnsavedChangesDialog() async {
+    final theme = Theme.of(context);
     final shouldExit = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: theme.dialogBackgroundColor,
           title: Text(
             'Unsaved Changes',
             style: TextStyle(
               fontFamily: 'OpenSans',
               fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
             ),
           ),
           content: Text(
             'You have unsaved changes. Are you sure you want to leave?',
             style: TextStyle(
               fontFamily: 'OpenSans',
+              color: theme.colorScheme.onSurface,
             ),
           ),
           actions: [
@@ -204,7 +217,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 'Cancel',
                 style: TextStyle(
                   fontFamily: 'OpenSans',
-                  color: Colors.grey,
+                  color: theme.colorScheme.onSurface.withOpacity(0.7),
                 ),
               ),
             ),
@@ -398,21 +411,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   /// Shows error dialog
   void _showErrorDialog({required String title, required String message}) {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: theme.dialogBackgroundColor,
           title: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'OpenSans',
               fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
             ),
           ),
           content: Text(
             message,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'OpenSans',
+              color: theme.colorScheme.onSurface,
             ),
           ),
           actions: [
@@ -476,72 +493,77 @@ class _EditProfilePageState extends State<EditProfilePage> {
           }
         }
       },
-      child: Scaffold(
-        backgroundColor: Color(0xFFE0F2F7),
-        appBar: AppBar(
-          backgroundColor: Color(0xFFE0F2F7),
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Color(0xFF2C3E50)),
-            onPressed: () async {
-              if (_hasUnsavedChanges()) {
-                final shouldPop = await _showUnsavedChangesDialog();
-                if (shouldPop && mounted) {
-                  Navigator.pop(context);
-                }
-              } else {
-                Navigator.pop(context);
-              }
-            },
-          ),
-          title: Text(
-            'Edit Profile',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w400,
-              color: Color(0xFF2C3E50),
-              fontFamily: 'OpenSans',
+      child: Builder(
+        builder: (context) {
+          final theme = Theme.of(context);
+          final isDark = theme.brightness == Brightness.dark;
+          
+          return Scaffold(
+            backgroundColor: theme.scaffoldBackgroundColor,
+            appBar: AppBar(
+              backgroundColor: theme.scaffoldBackgroundColor,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: theme.colorScheme.onBackground),
+                onPressed: () async {
+                  if (_hasUnsavedChanges()) {
+                    final shouldPop = await _showUnsavedChangesDialog();
+                    if (shouldPop && mounted) {
+                      Navigator.pop(context);
+                    }
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+              title: Text(
+                'Edit Profile',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w400,
+                  color: theme.colorScheme.onBackground,
+                  fontFamily: 'OpenSans',
+                ),
+              ),
             ),
-          ),
-        ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Profile Photo Section
-                Center(
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+                child: Form(
+                  key: _formKey,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Stack(
-                        children: [
-                          Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Color(0xFF3AB7BF),
-                                width: 3,
-                              ),
-                              color: Color(0xFFE0F2F7),
-                            ),
-                            child: ClipOval(
-                              child: _profileImage != null
-                                  ? Image.file(
-                                      _profileImage!,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Icon(
-                                      Icons.person,
-                                      size: 60,
+                      // Profile Photo Section
+                      Center(
+                        child: Column(
+                          children: [
+                            Stack(
+                              children: [
+                                Container(
+                                  width: 120,
+                                  height: 120,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
                                       color: Color(0xFF3AB7BF),
+                                      width: 3,
                                     ),
-                            ),
-                          ),
+                                    color: isDark ? theme.colorScheme.surface : Color(0xFFE0F2F7),
+                                  ),
+                                  child: ClipOval(
+                                    child: _profileImage != null
+                                        ? Image.file(
+                                            _profileImage!,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Icon(
+                                            Icons.person,
+                                            size: 60,
+                                            color: Color(0xFF3AB7BF),
+                                          ),
+                                  ),
+                                ),
                           Positioned(
                             bottom: 0,
                             right: 0,
@@ -586,16 +608,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 SizedBox(height: 32),
 
-                // Personal Information Section
-                Text(
-                  'Personal Information',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2C3E50),
-                    fontFamily: 'OpenSans',
-                  ),
-                ),
+                      // Personal Information Section
+                      Text(
+                        'Personal Information',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onBackground,
+                          fontFamily: 'OpenSans',
+                        ),
+                      ),
                 SizedBox(height: 16),
 
                 // Full Name Field
@@ -628,12 +650,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   keyboardType: TextInputType.phone,
                   validator: _validatePhoneNumber,
                 ),
-                SizedBox(height: 32),
+                      SizedBox(height: 32),
 
-                // Save Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
+                      // Save Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
                     onPressed: _isLoading ? null : _saveProfile,
                     style: ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(Color(0xFF3AB7BF)),
@@ -667,12 +689,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           ),
                   ),
                 ),
-              ],
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
-      ), // closes Scaffold
     ); // closes PopScope
   }
 
@@ -684,12 +708,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     required String? Function(String?) validator,
     TextInputType? keyboardType,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? theme.colorScheme.surface : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.grey.shade300,
+          color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
           width: 1,
         ),
       ),
@@ -699,18 +726,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
         validator: validator,
         style: TextStyle(
           fontFamily: 'OpenSans',
-          color: Color(0xFF2C3E50),
+          color: theme.colorScheme.onSurface,
         ),
         decoration: InputDecoration(
           labelText: label,
           hintText: placeholder,
           hintStyle: TextStyle(
             fontFamily: 'OpenSans',
-            color: Colors.grey.shade400,
+            color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
           ),
           labelStyle: TextStyle(
             fontFamily: 'OpenSans',
-            color: Colors.grey.shade600,
+            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
           ),
           prefixIcon: Icon(
             icon,

@@ -44,8 +44,10 @@ class _AllReportPageState extends State<AllReportPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
-      backgroundColor: Color(0xFFE0F2F7),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -65,7 +67,7 @@ class _AllReportPageState extends State<AllReportPage> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w400,
-                      color: Color(0xFF2C3E50),
+                      color: theme.colorScheme.onBackground,
                       fontFamily: 'OpenSans',
                     ),
                   ),
@@ -104,17 +106,22 @@ class _AllReportPageState extends State<AllReportPage> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: isDark 
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.black.withOpacity(0.08),
               blurRadius: 10,
               offset: Offset(0, 2),
             ),
@@ -126,13 +133,15 @@ class _AllReportPageState extends State<AllReportPage> {
             Container(
               padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Color(0xFFF8F9FA),
+                color: isDark 
+                    ? theme.colorScheme.surface.withOpacity(0.5)
+                    : Color(0xFFF8F9FA),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 icon,
                 size: 28,
-                color: Color(0xFF2C3E50),
+                color: theme.colorScheme.onSurface,
               ),
             ),
             SizedBox(width: 16),
@@ -146,7 +155,7 @@ class _AllReportPageState extends State<AllReportPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF2C3E50),
+                      color: theme.colorScheme.onSurface,
                       fontFamily: 'OpenSans',
                     ),
                   ),
@@ -155,7 +164,9 @@ class _AllReportPageState extends State<AllReportPage> {
                     subtitle,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[600],
+                      color: isDark 
+                          ? theme.colorScheme.onSurface.withOpacity(0.7)
+                          : Colors.grey[600],
                       fontFamily: 'OpenSans',
                     ),
                   ),
@@ -165,7 +176,9 @@ class _AllReportPageState extends State<AllReportPage> {
             // Arrow Icon
             Icon(
               Icons.chevron_right,
-              color: Colors.grey[400],
+              color: isDark 
+                  ? theme.colorScheme.onSurface.withOpacity(0.5)
+                  : Colors.grey[400],
               size: 24,
             ),
           ],

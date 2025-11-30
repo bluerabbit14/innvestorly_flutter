@@ -167,8 +167,9 @@ class _MPINPageState extends State<MPINPage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: Theme.of(context).brightness == Brightness.dark
+          backgroundColor: isDark
               ? Color(0xFF1E3A5F)
               : Colors.white,
           shape: RoundedRectangleBorder(
@@ -187,7 +188,7 @@ class _MPINPageState extends State<MPINPage> {
                   message,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.black,
+                    color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
               ),
@@ -201,7 +202,7 @@ class _MPINPageState extends State<MPINPage> {
               child: Text(
                 'OK',
                 style: TextStyle(
-                  color: Colors.black,
+                  color: isDark ? Colors.white : Colors.black,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -225,8 +226,9 @@ class _MPINPageState extends State<MPINPage> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: Theme.of(context).brightness == Brightness.dark
+          backgroundColor: isDark
               ? Color(0xFF1E3A5F)
               : Colors.white,
           shape: RoundedRectangleBorder(
@@ -237,14 +239,14 @@ class _MPINPageState extends State<MPINPage> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: isDark ? Colors.white : Colors.black,
             ),
           ),
           content: Text(
             'This will log you out and reset the app. You will need to login again and set up MPIN.',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.black,
+              color: isDark ? Colors.white : Colors.black,
             ),
           ),
           actions: [
@@ -255,7 +257,7 @@ class _MPINPageState extends State<MPINPage> {
               child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Colors.black,
+                  color: isDark ? Colors.white : Colors.black,
                   fontSize: 16,
                 ),
               ),

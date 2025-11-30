@@ -473,8 +473,10 @@ class _RevenuePageState extends State<RevenuePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
-      backgroundColor: Color(0xFFE0F2F7),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
           child: Column(
             children: [
@@ -677,7 +679,12 @@ class _RevenuePageState extends State<RevenuePage> {
                 ? _selectedMonth 
                 : _selectedHotel,
             underline: SizedBox(),
+            style: TextStyle(
+              color: Color(0xFF2C3E50),
+              fontSize: 14,
+            ),
             icon: Icon(Icons.arrow_drop_down, color: Color(0xFF2C3E50)),
+            dropdownColor: Colors.white,
             items: _selectedPeriod == 'Monthly'
                 ? (_availableMonths.isNotEmpty ? _availableMonths : _months)
                     .map((item) => DropdownMenuItem(
@@ -766,7 +773,7 @@ class _RevenuePageState extends State<RevenuePage> {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(40.0),
-            child: Text(
+              child: Text(
               'No data available',
               style: TextStyle(
                 fontSize: 16,
@@ -1079,7 +1086,7 @@ class _RevenuePageState extends State<RevenuePage> {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(40.0),
-            child: Text(
+              child: Text(
               'No data available',
               style: TextStyle(
                 fontSize: 16,

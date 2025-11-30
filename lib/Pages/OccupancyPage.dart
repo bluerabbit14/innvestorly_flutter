@@ -449,19 +449,21 @@ class _OccupancyPageState extends State<OccupancyPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
-      backgroundColor: Color(0xFFE0F2F7),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Color(0xFFE0F2F7),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF2C3E50)),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onBackground),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Occupancy',
           style: TextStyle(
-            color: Color(0xFF2C3E50),
+            color: theme.colorScheme.onBackground,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -657,7 +659,12 @@ class _OccupancyPageState extends State<OccupancyPage> {
                 ? _selectedMonth 
                 : _selectedHotel,
             underline: SizedBox(),
+            style: TextStyle(
+              color: Color(0xFF2C3E50),
+              fontSize: 14,
+            ),
             icon: Icon(Icons.arrow_drop_down, color: Color(0xFF2C3E50)),
+            dropdownColor: Colors.white,
             items: _selectedPeriod == 'Monthly'
                 ? (_availableMonths.isNotEmpty ? _availableMonths : _months)
                     .map((item) => DropdownMenuItem(
@@ -725,6 +732,9 @@ class _OccupancyPageState extends State<OccupancyPage> {
     } else {
       displayData = _hotelData;
     }
+    
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     
     // Handle empty data
     if (displayData == null || (displayData is List && displayData.isEmpty)) {
@@ -802,7 +812,7 @@ class _OccupancyPageState extends State<OccupancyPage> {
                 barTouchData: BarTouchData(
                   enabled: true,
                   touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (group) => Colors.white,
+                    getTooltipColor: (group) => theme.colorScheme.surface,
                     tooltipRoundedRadius: 8,
                     tooltipPadding: EdgeInsets.all(8),
                     tooltipMargin: 8,
@@ -842,7 +852,9 @@ class _OccupancyPageState extends State<OccupancyPage> {
                               'Occupied Rooms:\n${_formatNumber(occupiedRooms)}\n\n'
                               'Occupancy Rate:\n${_formatPercentage(occupancy)}',
                         TextStyle(
-                          color: Color(0xFF265984),
+                          color: isDark 
+                              ? theme.colorScheme.onSurface
+                              : Color(0xFF265984),
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                           height: 1.5,
