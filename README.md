@@ -6,11 +6,11 @@
 
 ### Key Highlights
 - **Cross-platform**: Single codebase for Android and iOS
-- **Real-time Analytics**: Live data synchronization with backend APIs
+- **Hardcoded Data Mode**: Uses in-memory data service for development and testing
 - **Secure Authentication**: Multiple authentication methods including JWT, Biometric, and MPIN
 - **Comprehensive Reporting**: Daily, Weekly, Monthly, and Yearly reports with visualizations
 - **Modern UI/UX**: Material Design 3 with dark mode support
-- **Offline Capability**: Local data persistence using SharedPreferences
+- **Local Data Persistence**: Profile updates and preferences stored using SharedPreferences
 
 ---
 
@@ -28,7 +28,7 @@
 - **Interactive Charts**: Bar charts using fl_chart library
 - **Hotel-wise Breakdown**: Individual hotel performance metrics
 - **Investment Share Tracking**: Track your percentage share and gross revenue
-- **Real-time Updates**: Automatic data refresh on page load
+- **Data Refresh**: Automatic data load on page navigation
 
 ### 3. **Occupancy Management**
 - **Occupancy Rate Calculation**: Real-time occupancy percentage
@@ -44,9 +44,9 @@
 
 ### 5. **Profile Management**
 - **User Profile**: View and edit personal information
-- **Profile Picture**: Upload and manage profile images
-- **Change Password**: Secure password update functionality
-- **Profile Data Sync**: Real-time synchronization with backend
+- **Profile Picture**: Upload and manage profile images (stored locally)
+- **Change Password**: Note: Password changes not implemented in hardcoded mode
+- **Profile Data Updates**: In-memory profile updates (phone number cannot be changed)
 
 ### 6. **Settings & Customization**
 - **Theme Toggle**: Light and Dark mode support
@@ -90,28 +90,33 @@ lib/
 │   └── MPINPage.dart        # MPIN verification
 └── services/                # Business Logic Services
     ├── AuthService.dart     # Authentication & JWT management
-    ├── RevenueService.dart  # Revenue API calls
-    ├── OccupancyService.dart # Occupancy API calls
-    ├── ProfileService.dart  # Profile API calls
+    ├── HardCodedDataService.dart # In-memory data service (replaces API)
+    ├── RevenueService.dart  # Revenue data access (uses HardCodedDataService)
+    ├── OccupancyService.dart # Occupancy data access (uses HardCodedDataService)
+    ├── ProfileService.dart  # Profile data access (uses HardCodedDataService)
     ├── BiometricService.dart # Biometric authentication
     └── ThemeService.dart   # Theme management
 ```
 
-### **API Integration**
-- **Base URL**: `https://dailyrevue.argosstaging.com/api`
-- **Authentication**: Bearer Token (JWT) in Authorization header
-- **Endpoints**:
-  - `/authenticate/signin` - User login
-  - `/dashboard/daily-revenue` - Daily revenue data
-  - `/dashboard/weekly-revenue` - Weekly revenue data
-  - `/dashboard/monthly-revenue` - Monthly revenue data
-  - `/dashboard/yearly-revenue` - Yearly revenue data
-  - `/dashboard/yoy-revenue` - Year-over-Year data
-  - `/dashboard/daily-occupancy` - Daily occupancy data
-  - `/dashboard/weekly-occupancy` - Weekly occupancy data
-  - `/dashboard/monthly-occupancy` - Monthly occupancy data
-  - `/dashboard/yearly-occupancy` - Yearly occupancy data
-  - `/user/profile` - User profile data
+### **Data Management**
+
+The app uses a **HardCodedDataService** singleton that replaces all API calls with in-memory data:
+
+- **Service Pattern**: Singleton pattern ensures single instance across the app
+- **No API Calls**: All data (revenue, occupancy, profile) is served from hardcoded data
+- **Profile Updates**: Profile changes are persisted in-memory during the session (phone number cannot be changed)
+- **Authentication**: Uses hardcoded credentials for login validation
+- **Data Structure**: Maintains realistic hotel data for three hotels:
+  - **Grand Plaza Hotel** (GPH) - 15.5% investment share
+  - **Ocean View Resort** (OVR) - 20.0% investment share
+  - **Mountain Peak Inn** (MPI) - 12.0% investment share
+
+**Default User Profile:**
+- Name: John Doe
+- Email: john.doe@example.com
+- Phone: (123) 456-7890
+
+**Note**: All service classes (RevenueService, OccupancyService, ProfileService) now use HardCodedDataService instead of making HTTP requests. This allows the app to function completely offline for development and testing purposes.
 
 ---
 
@@ -154,12 +159,21 @@ lib/
 
 ## 📱 User Manual
 
-### **Login Credentials**
+For detailed user instructions, please refer to [USER_MANUAL.md](USER_MANUAL.md).
 
-**Phone Number**: `(175) 994-9414`  
-**Password**: `Admin@123`
+### **Quick Start - Login Credentials**
 
-> **Note**: Enter the phone number as `1759949414` (10 digits without formatting) in the login screen. The app will automatically format it to `(175) 994-9414` when sending to the API.
+**Phone Number**: `(123) 456-7890`  
+**Password**: `password123`
+
+> **Note**: Enter the phone number as `1234567890` (10 digits without formatting) in the login screen. The app will automatically format it to `(123) 456-7890` for display.
+
+### **Important: Hardcoded Data Mode**
+This app currently operates in **hardcoded data mode**, meaning:
+- All data (revenue, occupancy, profile) is served from in-memory hardcoded values
+- No internet connection or API server is required
+- Profile updates persist only during the app session
+- Restarting the app resets profile changes to default values
 
 ---
 
@@ -324,9 +338,9 @@ The app has three main tabs:
    - Ensure credentials are correct
 
 2. **Data Not Loading**
-   - Check internet connectivity
-   - Verify JWT token is valid (try logging out and back in)
-   - Check API server status
+   - Restart the app to refresh in-memory data
+   - Verify you're logged in with correct credentials
+   - Check if data service is properly initialized
 
 3. **Biometric Not Working**
    - Ensure biometric is set up in device settings
@@ -339,14 +353,14 @@ The app has three main tabs:
 
 ---
 
-## 📝 API Error Handling
+## 📝 Data Service
 
-The app handles various error scenarios:
-- **401 Unauthorized**: Redirects to login
-- **400 Bad Request**: Shows specific error message
-- **Network Timeout**: Displays timeout message
-- **No Internet**: Shows connection error
-- **SSL Errors**: Displays security error message
+The app uses a hardcoded data service for all operations:
+- **Authentication**: Validates credentials against hardcoded values
+- **Revenue Data**: Returns pre-configured revenue data for three hotels
+- **Occupancy Data**: Returns pre-configured occupancy statistics
+- **Profile Data**: Maintains user profile in-memory (can be updated)
+- **Error Handling**: Shows user-friendly error messages for invalid operations
 
 ---
 
@@ -385,6 +399,7 @@ The app handles various error scenarios:
 - Authentication system
 - Profile management
 - Reports and analytics
+- Hardcoded data service implementation (replaces API calls)
 
 ---
 

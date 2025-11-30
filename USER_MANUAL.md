@@ -10,12 +10,12 @@ Innvestorly is your comprehensive hotel revenue and investment tracking applicat
 
 ### **Default Login Credentials**
 
-**Phone Number**: `1759949414`  
+**Phone Number**: `1234567890`  
 *(Enter as 10 digits without formatting)*
 
-**Password**: `Admin@123`
+**Password**: `password123`
 
-> **Important**: When entering your phone number, type it as 10 digits (e.g., `1759949414`). The app will automatically format it to `(175) 994-9414` when you log in.
+> **Important**: When entering your phone number, type it as 10 digits (e.g., `1234567890`). The app will automatically format it to `(123) 456-7890` for display.
 
 ---
 
@@ -28,8 +28,8 @@ Innvestorly is your comprehensive hotel revenue and investment tracking applicat
    - You'll see a loading screen briefly
 
 2. **Login Screen**
-   - Enter your phone number: `1759949414`
-   - Enter your password: `Admin@123`
+   - Enter your phone number: `1234567890`
+   - Enter your password: `password123`
    - Tap the **"Login"** button
 
 3. **Forgot Password?**
@@ -362,9 +362,9 @@ Your preference is saved automatically!
 ## 💡 Tips & Best Practices
 
 ### **Data Refresh**
+- Data is served from in-memory hardcoded data service
 - Data automatically refreshes when you switch tabs
-- Pull down on any page to manually refresh
-- Daily data refreshes when you return to the Home tab
+- Restart the app to reset all data to default values
 
 ### **Reading Charts**
 - Tap on any bar in charts to see detailed information
@@ -385,14 +385,14 @@ Your preference is saved automatically!
 ### **Troubleshooting**
 
 **Data Not Loading?**
-- Check your internet connection
+- Restart the app to refresh data
 - Try logging out and back in
-- Restart the app
+- Verify you're using the correct login credentials
 
 **Can't Login?**
-- Verify phone number format (10 digits)
-- Check password (case-sensitive)
-- Ensure internet connection
+- Verify phone number format (10 digits: `1234567890`)
+- Check password (case-sensitive: `password123`)
+- Ensure you're using the correct credentials
 
 **Biometric Not Working?**
 - Check device settings for biometric setup
@@ -426,4 +426,27 @@ You now know how to use all the features of Innvestorly. Start exploring your re
 
 **Last Updated**: January 2025  
 **App Version**: 1.0.0+1
+
+---
+
+## 📌 Important Notes
+
+### **Hardcoded Data Mode**
+This version of the app uses hardcoded data instead of API calls. All revenue, occupancy, and profile data is served from an in-memory data service. This means:
+- No internet connection required
+- Data persists only during the app session
+- Profile updates are saved in-memory (phone number cannot be changed)
+- Restarting the app resets profile changes to default values
+- Revenue and occupancy data always returns the same hardcoded values
+
+### **Default Profile Data**
+- **Name**: John Doe
+- **Email**: john.doe@example.com
+- **Phone**: (123) 456-7890
+
+### **Sample Hotels**
+The app includes data for three sample hotels:
+- **Grand Plaza Hotel** (GPH)
+- **Ocean View Resort** (OVR)
+- **Mountain Peak Inn** (MPI)
 
