@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:innvestorly_flutter/services/AuthService.dart';
 import 'package:innvestorly_flutter/services/ProfileService.dart';
+import 'package:innvestorly_flutter/services/HardCodedDataService.dart';
 
 class EditProfilePage extends StatefulWidget {
   final String? fullName;
@@ -42,8 +40,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String _initialPhoneNumber = '';
   File? _initialProfileImage;
 
-  // API Configuration
-  static const String _apiUrl = 'https://dailyrevue.argosstaging.com/api/user/update-profile';
 
   @override
   void initState() {
@@ -258,7 +254,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
-  /// Validates and saves profile data
+  /// Validates and saves profile data using hardcoded data service
   Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -270,40 +266,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
         final email = _emailController.text.trim();
         final phoneNumber = _phoneNumberController.text.trim();
         
+        // Check if phone number is being changed (not allowed)
+        if (phoneNumber != _initialPhoneNumber) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+            _showErrorDialog(
+              title: 'Update Failed',
+              message: 'Phone number cannot be changed. Please keep the original phone number.',
+            );
+            // Reset phone number to original
+            _phoneNumberController.text = _initialPhoneNumber;
+            return;
+          }
+        }
+        
         // Split full name into first and last name
         final nameParts = _splitFullName(fullName);
         
-        // Get authentication headers with JWT token
-        final headers = await AuthService.getAuthHeaders();
-
-        // Prepare request body
-        final Map<String, dynamic> requestBody = {
-          'firstName': nameParts['firstName'] ?? '',
-          'lastName': nameParts['lastName'] ?? '',
-          'phoneNumber': phoneNumber,
-          'email': email,
-        };
-
-        // Make API call
-        final response = await http.put(
-          Uri.parse(_apiUrl),
-          headers: headers,
-          body: jsonEncode(requestBody),
-        ).timeout(
-          const Duration(seconds: 30),
-          onTimeout: () {
-            throw Exception('Request timeout. Please check your internet connection.');
-          },
+        // Use hardcoded data service to update profile
+        final hardCodedService = HardCodedDataService();
+        final response = await hardCodedService.updateProfile(
+          firstName: nameParts['firstName'] ?? '',
+          lastName: nameParts['lastName'] ?? '',
+          email: email,
+          phoneNumber: phoneNumber, // This will be ignored by the service
         );
 
-        // Handle response
-        if (response.statusCode == 200) {
-          final responseData = jsonDecode(response.body);
-          String message = 'Profile updated successfully';
-          
-          if (responseData is Map<String, dynamic> && responseData['message'] != null) {
-            message = responseData['message'];
-          }
+        if (response['success'] == true) {
+          String message = response['message'] ?? 'Profile updated successfully';
 
           if (mounted) {
             setState(() {
@@ -311,7 +303,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               _isSaved = true;
             });
             
-            // Fetch fresh profile data from API
+            // Fetch fresh profile data
             try {
               await ProfileService.getUserProfile();
             } catch (e) {
@@ -334,43 +326,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
             Navigator.pop(context); // Pop EditProfilePage
             Navigator.pop(context); // Pop ProfilePage to return to Settings
           }
-        } else if (response.statusCode == 401) {
-          // Unauthorized - token expired or invalid
-          if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-            _showErrorDialog(
-              title: 'Authentication Error',
-              message: 'Your session has expired. Please log in again.',
-            );
-          }
         } else {
-          // Handle error response
-          String errorMessage = 'Failed to update profile. Please try again.';
-          try {
-            final errorData = jsonDecode(response.body);
-            if (errorData is Map<String, dynamic>) {
-              if (errorData['errors'] != null && errorData['errors'] is List) {
-                List errors = errorData['errors'];
-                if (errors.isNotEmpty && errors[0] is Map) {
-                  errorMessage = errors[0]['message'] ?? errorMessage;
-                }
-              } else if (errorData['message'] != null) {
-                errorMessage = errorData['message'];
-              }
-            }
-          } catch (e) {
-            // Use default error message
-          }
-
           if (mounted) {
             setState(() {
               _isLoading = false;
             });
             _showErrorDialog(
               title: 'Update Failed',
-              message: errorMessage,
+              message: response['message'] ?? 'Failed to update profile. Please try again.',
             );
           }
         }
@@ -380,24 +343,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
             _isLoading = false;
           });
           
-          String errorMessage = 'An error occurred. Please try again.';
-          String errorString = e.toString().toLowerCase();
-          
-          if (errorString.contains('timeout')) {
-            errorMessage = 'Request timeout. Please check your internet connection.';
-          } else if (errorString.contains('socketexception') || 
-                     errorString.contains('failed host lookup') ||
-                     errorString.contains('network is unreachable') ||
-                     errorString.contains('no address associated with hostname')) {
-            errorMessage = 'No internet connection. Please check your network.';
-          } else if (errorString.contains('handshakeexception') ||
-                     errorString.contains('tlsexception') ||
-                     errorString.contains('certificateexception') ||
-                     errorString.contains('certificate verify failed')) {
-            errorMessage = 'SSL certificate error. Please check your network security settings.';
-          } else if (errorString.contains('connection refused') ||
-                     errorString.contains('connection reset')) {
-            errorMessage = 'Connection error. Please try again later.';
+          String errorMessage = e.toString().replaceFirst('Exception: ', '');
+          if (errorMessage.isEmpty) {
+            errorMessage = 'An error occurred. Please try again.';
           }
           
           _showErrorDialog(
@@ -641,7 +589,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 SizedBox(height: 16),
 
-                // Phone Number Field
+                // Phone Number Field (Read-only, cannot be changed)
                 _buildTextField(
                   controller: _phoneNumberController,
                   label: 'Phone Number',
@@ -649,6 +597,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   icon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
                   validator: _validatePhoneNumber,
+                  enabled: false, // Disable editing
                 ),
                       SizedBox(height: 32),
 
@@ -707,6 +656,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     required IconData icon,
     required String? Function(String?) validator,
     TextInputType? keyboardType,
+    bool enabled = true,
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -724,9 +674,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
         controller: controller,
         keyboardType: keyboardType,
         validator: validator,
+        enabled: enabled,
         style: TextStyle(
           fontFamily: 'OpenSans',
-          color: theme.colorScheme.onSurface,
+          color: enabled ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withOpacity(0.6),
         ),
         decoration: InputDecoration(
           labelText: label,

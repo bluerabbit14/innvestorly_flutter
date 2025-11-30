@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:innvestorly_flutter/services/AuthService.dart';
+import 'package:innvestorly_flutter/services/HardCodedDataService.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -79,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
     return true;
   }
 
-  /// Makes API call to authenticate user
+  /// Authenticates user using hardcoded data
   Future<void> _authenticateUser() async {
     if (!_validateInputs()) return;
 
@@ -92,145 +93,73 @@ class _LoginPageState extends State<LoginPage> {
       String password = _passwordController.text.trim();
       String formattedPhone = _formatPhoneNumber(phone);
 
-      // Prepare request body
-      final Map<String, dynamic> requestBody = {
-        'phoneNumber': formattedPhone,
-        'password': password,
-      };
+      // Use hardcoded data service for authentication
+      final hardCodedService = HardCodedDataService();
+      final response = await hardCodedService.authenticate(formattedPhone, password);
 
-      // Make API call
-      final response = await http.post(
-        Uri.parse(_apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(requestBody),
-      ).timeout(
-        const Duration(seconds: 30),
-        onTimeout: () {
-          throw Exception('Request timeout. Please check your internet connection.');
-        },
-      );
-
-      // Handle response
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
+      if (response['success'] == true && response['token'] != null) {
+        // Store JWT token and set login flag
+        await AuthService.saveJwtToken(response['token']);
         
-        // Extract JWT token from response
-        String? jwtToken;
-        if (responseData is Map<String, dynamic>) {
-          jwtToken = responseData['token'] ?? 
-                     responseData['jwtToken'] ?? 
-                     responseData['accessToken'] ??
-                     responseData['jwt'];
-        }
-
-        if (jwtToken != null && jwtToken.isNotEmpty) {
-          // Store JWT token and set login flag (saveJwtToken sets both token and login flag)
-          await AuthService.saveJwtToken(jwtToken);
-          
-          // Show success snackbar
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Login successful!',
-                        style: TextStyle(
-                          fontFamily: 'OpenSans',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+        // Show success snackbar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Login successful!',
+                      style: TextStyle(
+                        fontFamily: 'OpenSans',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ],
-                ),
-                backgroundColor: Color(0xFF50C878),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                margin: EdgeInsets.all(16),
-                duration: Duration(seconds: 2),
+                  ),
+                ],
               ),
-            );
-            
-            // Navigate to dashboard after a short delay to show snackbar
-            await Future.delayed(Duration(milliseconds: 500));
-          }
+              backgroundColor: Color(0xFF50C878),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              margin: EdgeInsets.all(16),
+              duration: Duration(seconds: 2),
+            ),
+          );
           
-          // Navigate to dashboard
-          if (mounted) {
-            Navigator.pushReplacementNamed(context, '/DashboardPage');
-          }
-        } else {
-          // Token not found in response
-          if (mounted) {
-            _showErrorDialog(
-              title: 'Authentication Error',
-              message: 'Invalid response from server. Please try again.',
-            );
-          }
+          // Navigate to dashboard after a short delay to show snackbar
+          await Future.delayed(Duration(milliseconds: 500));
+        }
+        
+        // Navigate to dashboard
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/DashboardPage');
         }
       } else {
-        // Handle error response
-        String errorMessage = 'Login failed. Please check your credentials.';
-        try {
-          final errorData = jsonDecode(response.body);
-          if (errorData is Map<String, dynamic> && errorData['message'] != null) {
-            errorMessage = errorData['message'];
-          }
-        } catch (e) {
-          // Use default error message
-        }
-
         if (mounted) {
           _showErrorDialog(
-            title: 'Login Failed',
-            message: errorMessage,
+            title: 'Authentication Error',
+            message: 'Invalid response from server. Please try again.',
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        // Log the actual error for debugging - including full details
-        print('LoginPage Error Type: ${e.runtimeType}');
-        print('LoginPage Error: ${e.toString()}');
-        print('LoginPage StackTrace: ${StackTrace.current}');
-        
-        String errorMessage = 'An error occurred. Please try again.';
-        String errorString = e.toString().toLowerCase();
-        
-        if (errorString.contains('timeout')) {
-          errorMessage = 'Request timeout. Please check your internet connection.';
-        } else if (errorString.contains('socketexception') || 
-                   errorString.contains('failed host lookup') ||
-                   errorString.contains('network is unreachable') ||
-                   errorString.contains('no address associated with hostname')) {
-          errorMessage = 'No internet connection. Please check your network.';
-        } else if (errorString.contains('handshakeexception') ||
-                   errorString.contains('tlsexception') ||
-                   errorString.contains('certificateexception') ||
-                   errorString.contains('certificate verify failed')) {
-          errorMessage = 'SSL certificate error. Please check your network security settings.';
-        } else if (errorString.contains('connection refused') ||
-                   errorString.contains('connection reset')) {
-          errorMessage = 'Connection error. Please try again later.';
-        } else {
-          // Show actual error for debugging (remove in production if needed)
-          errorMessage = 'Network error: ${e.toString().split(':').last.trim()}';
+        String errorMessage = e.toString().replaceFirst('Exception: ', '');
+        if (errorMessage.isEmpty) {
+          errorMessage = 'Login failed. Please check your credentials.';
         }
         
         _showErrorDialog(
-          title: 'Error',
+          title: 'Login Failed',
           message: errorMessage,
         );
       }

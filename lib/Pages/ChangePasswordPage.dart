@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:innvestorly_flutter/services/AuthService.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -21,9 +18,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
 
-  // API Configuration
-  static const String _apiUrl = 'https://dailyrevue.argosstaging.com/api/user/change-password';
-
   @override
   void dispose() {
     _currentPasswordController.dispose();
@@ -38,140 +32,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         _isLoading = true;
       });
 
-      try {
-        String currentPassword = _currentPasswordController.text.trim();
-        String newPassword = _newPasswordController.text.trim();
-        String confirmPassword = _confirmPasswordController.text.trim();
-
-        // Get authentication headers with JWT token
-        final headers = await AuthService.getAuthHeaders();
-
-        // Prepare request body
-        final Map<String, dynamic> requestBody = {
-          'currentPassword': currentPassword,
-          'newPassword': newPassword,
-          'confirmPassword': confirmPassword,
-        };
-
-        // Make API call
-        final response = await http.post(
-          Uri.parse(_apiUrl),
-          headers: headers,
-          body: jsonEncode(requestBody),
-        ).timeout(
-          const Duration(seconds: 30),
-          onTimeout: () {
-            throw Exception('Request timeout. Please check your internet connection.');
-          },
+      // Block password changes in hardcoded data mode
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        _showErrorDialog(
+          title: 'Password Change Not Allowed',
+          message: 'Password changes are not allowed in demo mode. Please contact support for password changes.',
         );
-
-        // Handle response
-        if (response.statusCode == 200) {
-          final responseData = jsonDecode(response.body);
-          String message = 'Password changed successfully';
-          
-          if (responseData is Map<String, dynamic> && responseData['message'] != null) {
-            message = responseData['message'];
-          }
-
-          if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-            
-            // Clear authentication data (logout user)
-            await AuthService.clearAuthData();
-            
-            // Show success message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '$message Please login with your new password.',
-                  style: TextStyle(fontFamily: 'OpenSans'),
-                ),
-                backgroundColor: Color(0xFF3AB7BF),
-                duration: Duration(seconds: 3),
-              ),
-            );
-            
-            // Navigate to LoginPage and clear navigation stack
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              '/LoginPage',
-              (route) => false, // Remove all previous routes
-            );
-          }
-        } else if (response.statusCode == 401) {
-          // Unauthorized - token expired or invalid
-          if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-            _showErrorDialog(
-              title: 'Authentication Error',
-              message: 'Your session has expired. Please log in again.',
-            );
-          }
-        } else {
-          // Handle error response
-          String errorMessage = 'Failed to change password. Please try again.';
-          try {
-            final errorData = jsonDecode(response.body);
-            if (errorData is Map<String, dynamic>) {
-              if (errorData['errors'] != null && errorData['errors'] is List) {
-                List errors = errorData['errors'];
-                if (errors.isNotEmpty && errors[0] is Map) {
-                  errorMessage = errors[0]['message'] ?? errorMessage;
-                }
-              } else if (errorData['message'] != null) {
-                errorMessage = errorData['message'];
-              }
-            }
-          } catch (e) {
-            // Use default error message
-          }
-
-          if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-            _showErrorDialog(
-              title: 'Change Password Failed',
-              message: errorMessage,
-            );
-          }
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-          
-          String errorMessage = 'An error occurred. Please try again.';
-          String errorString = e.toString().toLowerCase();
-          
-          if (errorString.contains('timeout')) {
-            errorMessage = 'Request timeout. Please check your internet connection.';
-          } else if (errorString.contains('socketexception') || 
-                     errorString.contains('failed host lookup') ||
-                     errorString.contains('network is unreachable') ||
-                     errorString.contains('no address associated with hostname')) {
-            errorMessage = 'No internet connection. Please check your network.';
-          } else if (errorString.contains('handshakeexception') ||
-                     errorString.contains('tlsexception') ||
-                     errorString.contains('certificateexception') ||
-                     errorString.contains('certificate verify failed')) {
-            errorMessage = 'SSL certificate error. Please check your network security settings.';
-          } else if (errorString.contains('connection refused') ||
-                     errorString.contains('connection reset')) {
-            errorMessage = 'Connection error. Please try again later.';
-          }
-          
-          _showErrorDialog(
-            title: 'Error',
-            message: errorMessage,
-          );
-        }
       }
     }
   }
