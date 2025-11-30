@@ -187,7 +187,7 @@ class _MPINPageState extends State<MPINPage> {
                   message,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -201,7 +201,7 @@ class _MPINPageState extends State<MPINPage> {
               child: Text(
                 'OK',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -237,14 +237,14 @@ class _MPINPageState extends State<MPINPage> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
           content: Text(
             'This will log you out and reset the app. You will need to login again and set up MPIN.',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
           actions: [
@@ -255,7 +255,7 @@ class _MPINPageState extends State<MPINPage> {
               child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 16,
                 ),
               ),

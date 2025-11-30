@@ -444,6 +444,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     // Authenticate with biometric
     final authenticated = await BiometricService.authenticate(
       reason: 'Please authenticate to enable biometric login',
+      useErrorDialogs: false, // We'll show our own error dialogs
     );
 
     if (authenticated) {
@@ -454,7 +455,24 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       });
       _showSuccessDialog('Biometric authentication has been enabled successfully!');
     } else {
-      _showErrorDialog('Biometric authentication failed. Please try again.');
+      // Check if biometrics are still available (might have been disabled/locked)
+      final stillAvailable = await BiometricService.isBiometricAvailable();
+      if (!stillAvailable) {
+        _showErrorDialog(
+          'Biometric authentication is not available. Please ensure:\n\n'
+          '• Fingerprint/Face ID is set up in device settings\n'
+          '• Biometric authentication is not locked\n'
+          '• Try again or use MPIN authentication instead'
+        );
+      } else {
+        _showErrorDialog(
+          'Biometric authentication failed. Please try again.\n\n'
+          'If the problem persists:\n'
+          '• Ensure your fingerprint/face is properly registered\n'
+          '• Clean the fingerprint scanner\n'
+          '• Try using MPIN authentication instead'
+        );
+      }
     }
   }
 

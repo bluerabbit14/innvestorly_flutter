@@ -129,6 +129,44 @@ class _LoginPageState extends State<LoginPage> {
           // Store JWT token and set login flag (saveJwtToken sets both token and login flag)
           await AuthService.saveJwtToken(jwtToken);
           
+          // Show success snackbar
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Login successful!',
+                        style: TextStyle(
+                          fontFamily: 'OpenSans',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: Color(0xFF50C878),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                margin: EdgeInsets.all(16),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            
+            // Navigate to dashboard after a short delay to show snackbar
+            await Future.delayed(Duration(milliseconds: 500));
+          }
+          
           // Navigate to dashboard
           if (mounted) {
             Navigator.pushReplacementNamed(context, '/DashboardPage');

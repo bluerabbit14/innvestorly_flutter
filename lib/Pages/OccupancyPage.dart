@@ -451,62 +451,58 @@ class _OccupancyPageState extends State<OccupancyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFE0F2F7),
-      body: SafeArea(
-          child: Column(
-            children: [
-            // Header with Logo
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-              child: Row(
-                children: [
-                  Image.asset(
-                    'assets/innvestorly_logo.png',
-                    height: 45,
-                    width: 45,
-                  ),
-                ],
-              ),
-            ),
-            // Occupancy Content (scrollable)
-            Expanded(
-              child: _isLoading
-                  ? Center(
-                      child: SpinKitFadingCircle(
-                        color: Color(0xFF00BCD4),
-                        size: 50.0,
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // 4 Time Period Buttons
-                          _buildTimePeriodButtons(),
-                          const SizedBox(height: 20),
-
-                          // 3 Statistic Fields (Occupancy Rate, Total Rooms, Occupied)
-                          _buildStatisticsSection(),
-                          const SizedBox(height: 20),
-
-                          // Dropdown Box (for Monthly/Yearly)
-                          if (_selectedPeriod == 'Monthly' || _selectedPeriod == 'Yearly')
-                            _buildDropdownSection(),
-                          if (_selectedPeriod == 'Monthly' || _selectedPeriod == 'Yearly')
-                            const SizedBox(height: 20),
-
-                          // Bar Chart
-                          _buildChartSection(),
-                          const SizedBox(height: 20),
-
-                          // Table Section
-                          _buildTableSection(),
-                        ],
-                      ),
-                    ),
-            ),
-          ],
+      appBar: AppBar(
+        backgroundColor: Color(0xFFE0F2F7),
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Color(0xFF2C3E50)),
+          onPressed: () => Navigator.pop(context),
         ),
+        title: Text(
+          'Occupancy',
+          style: TextStyle(
+            color: Color(0xFF2C3E50),
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: _isLoading
+            ? Center(
+                child: SpinKitFadingCircle(
+                  color: Color(0xFF00BCD4),
+                  size: 50.0,
+                ),
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 4 Time Period Buttons
+                    _buildTimePeriodButtons(),
+                    const SizedBox(height: 20),
+
+                    // 3 Statistic Fields (Occupancy Rate, Total Rooms, Occupied)
+                    _buildStatisticsSection(),
+                    const SizedBox(height: 20),
+
+                    // Dropdown Box (for Monthly/Yearly)
+                    if (_selectedPeriod == 'Monthly' || _selectedPeriod == 'Yearly')
+                      _buildDropdownSection(),
+                    if (_selectedPeriod == 'Monthly' || _selectedPeriod == 'Yearly')
+                      const SizedBox(height: 20),
+
+                    // Bar Chart
+                    _buildChartSection(),
+                    const SizedBox(height: 20),
+
+                    // Table Section
+                    _buildTableSection(),
+                  ],
+                ),
+              ),
       ),
     );
   }
